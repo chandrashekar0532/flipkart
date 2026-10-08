@@ -13,6 +13,30 @@ pipeline {
             choices: ['both', 'environment', 'node'],
             description: 'Select configuration type'
         )
+    string(
+    name: 'INSTANCE_TYPE',
+    defaultValue: '',
+    description: 'Mandatory for node updates, e.g. t3.large'
+)
+
+string(
+    name: 'K8S_VERSION',
+    defaultValue: '',
+    description: 'Optional: Kubernetes version'
+)
+
+string(
+    name: 'CPU',
+    defaultValue: '',
+    description: 'Optional: CPU value'
+)
+
+string(
+    name: 'MEMORY',
+    defaultValue: '',
+    description: 'Optional: Memory value'
+)
+        
     }
 
     stages {
