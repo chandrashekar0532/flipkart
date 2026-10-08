@@ -151,6 +151,34 @@ pipeline {
                     }
                 }
             }
+       }
+        stage('Create Git Feature Branch') {
+    steps {
+        script {
+            def branchName =
+                "feature/update-${params.ENVIRONMENT}-${env.BUILD_NUMBER}"
+
+            env.FEATURE_BRANCH = branchName
+
+            sh """
+                git config user.name "Jenkins Automation"
+                git config user.email "jenkins-automation@example.com"
+
+                git switch -c "${branchName}"
+
+                git add environment/*.json node/*.json
+
+                if git diff --cached --quiet; then
+                    echo "No configuration changes detected"
+                else
+                    git commit -m "Update ${params.ENVIRONMENT} configuration"
+                fi
+            """
+
+            echo "Feature branch prepared: ${branchName}"
         }
     }
+}
+    }
+    
 }
