@@ -57,6 +57,13 @@ string(
                     if (!params.CONFIG_TYPE?.trim()) {
                         error('CONFIG_TYPE is mandatory')
                     }
+                     if (params.CONFIG_TYPE in ['node', 'both']) {
+                if (!params.INSTANCE_TYPE?.trim()) {
+                    error("INSTANCE_TYPE is mandatory for node updates")
+                }
+            }
+
+            echo "All mandatory parameters validated successfully" 
                 }
             }
         }
