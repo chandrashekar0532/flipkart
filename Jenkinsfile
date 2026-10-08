@@ -91,7 +91,43 @@ string(
                         echo "Validated JSON file: ${path}"
                     }
                 }
+           stage('Update JSON Configuration') {
+             steps {
+                 script {
+                       def types = params.CONFIG_TYPE == 'both'
+                       ? ['environment', 'node']
+                       : [params.CONFIG_TYPE]
+
+            types.each { type ->
+                def path = "${type}/${params.ENVIRONMENT}.json"
+
+                def config = readJSON file: path, returnPojo: true
+
+                if (type == 'node') {
+                    config.instanceType = params.INSTANCE_TYPE.trim()
+
+                    if (params.K8S_VERSION?.trim()) {
+                        config.kubernetes.version = params.K8S_VERSION.trim()
+                    }
+
+                    if (params.CPU?.trim()) {
+                        config.resources.cpu = params.CPU.trim()
+                    }
+
+                    if (params.MEMORY?.trim()) {
+                        config.resources.memory = params.MEMORY.trim()
+                    }
+                }
+
+                writeJSON file: path, json: config, pretty: 4
+
+                echo "Updated local configuration: ${path}"
             }
         }
+    }
+}
+            }
+        }
+        
     }
 }
