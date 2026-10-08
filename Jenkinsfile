@@ -51,9 +51,11 @@ pipeline {
                             error("Configuration file missing: ${path}")
                         }
 
-                        def content = readFile(path)
-                        new groovy.json.JsonSlurperClassic()
-                            .parseText(content)
+                          def config = readJSON file: path, returnPojo: true
+
+                             if (!(config instanceof Map)) {
+                                  error("Expected a JSON object in ${path}")
+                                   }
 
                         echo "Validated JSON file: ${path}"
                     }
