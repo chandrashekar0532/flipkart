@@ -158,6 +158,25 @@ if (params.CONFIG_TYPE in ['environment', 'both']) {
                         def path = "${type}/${params.ENVIRONMENT}.json"
 
                         def config = readJSON file: path, returnPojo: true
+                        
+if (type == 'environment') {
+
+    config.appName = params.ENV_APPNAME.trim()
+
+    config.version = params.ENV_VERSION.trim()
+
+    config.replicas = params.ENV_REPLICAS.trim().toInteger()
+
+    if (params.ENV_LOGLEVEL != 'KEEP') {
+        config.logLevel = params.ENV_LOGLEVEL
+    }
+
+    echo "Updated application: ${config.appName}"
+    echo "Updated version: ${config.version}"
+    echo "Updated replicas: ${config.replicas}"
+    echo "Updated log level: ${config.logLevel}"
+}
+
 
                         if (type == 'node') {
                             config.instanceType = params.INSTANCE_TYPE.trim()
