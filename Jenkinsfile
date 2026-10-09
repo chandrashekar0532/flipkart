@@ -309,44 +309,55 @@ stage('Validate Parameters') {
             }
         }
 
-        stage('Review Changes') {
-            steps {
-                script {
-                    def paths = params.CONFIG_TYPE == 'both'
-                        ? [
-                            "environment/${params.ENVIRONMENT}.json",
-                            "node/${params.ENVIRONMENT}.json"
-                          ]
-                        : [
-                            "${params.CONFIG_TYPE}/${params.ENVIRONMENT}.json"
-                          ]
+       
+stage('Review Changes') {
+    steps {
+        script {
+            def paths = params.CONFIG_TYPE == 'both'
+                ? [
+                    "environment/${params.ENVIRONMENT}.json",
+                    "node/${params.ENVIRONMENT}.json"
+                  ]
+                : [
+                    "${params.CONFIG_TYPE}/${params.ENVIRONMENT}.json"
+                  ]
 
-                    sh 'git diff --check'
+            def changesFound = false
 
-                    paths.each { path ->
-                        sh "git diff -- '${path}'"
-                    }
+            sh 'git diff --check'
 
-                    env.HAS_CHANGES = 'false'
+            paths.each { path ->
 
-                    paths.each { path ->
-                        def status = sh(
-                            script: "git diff --quiet -- '${path}'",
-                            returnStatus: true
-                        )
-                        echo "Checking file: ${path}"
-                         echo "Git diff exit code: ${status}"
-                        if (status == 1) {
-                            env.HAS_CHANGES = 'true'
-                        } else if (status != 0) {
-                            error("Git diff failed for ${path}")
-                        }
-                    }
+                echo "Checking file: ${path}"
 
-                    echo "Changes detected: ${env.HAS_CHANGES}"
+                def exitCode = sh(
+                    script: "git diff --quiet -- '${path}'",
+                    returnStatus: true
+                )
+
+                echo "Git diff exit code: ${exitCode}"
+
+                if (exitCode == 1) {
+                    changesFound = true
+                    echo "Changes detected in ${path}"
+                } else if (exitCode != 0) {
+                    error("Git diff failed for ${path}")
                 }
             }
+
+            env.HAS_CHANGES = changesFound ? 'true' : 'false'
+
+            echo "Final HAS_CHANGES: ${env.HAS_CHANGES}"
+
+            if (changesFound) {
+                echo 'Configuration changes are ready for Git commit'
+            } else {
+                echo 'No configuration changes detected'
+            }
         }
+    }
+}
+
 
         stage('Create Git Feature Branch') {
             when {
