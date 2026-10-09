@@ -307,6 +307,52 @@ stage('Validate Parameters') {
             }
         }
 
+stage('Validate Updated Configuration') {
+    steps {
+        script {
+            def types = params.CONFIG_TYPE == 'both'
+                ? ['environment', 'node']
+                : [params.CONFIG_TYPE]
+
+            types.each { type ->
+                def path = "${type}/${params.ENVIRONMENT}.json"
+
+                def config = readJSON(
+                    file: path,
+                    returnPojo: true
+                )
+
+                if (type == 'environment') {
+                    if (!config.appName?.toString()?.trim()) {
+                        error("Missing appName in ${path}")
+                    }
+
+                    if (!config.version?.toString()?.trim()) {
+                        error("Missing version in ${path}")
+                    }
+
+                    if (!(config.replicas instanceof Number) ||
+                        config.replicas < 1) {
+                        error("Invalid replicas in ${path}")
+                    }
+                }
+
+                if (type == 'node') {
+                    if (!config.instanceType?.toString()?.trim()) {
+                        error("Missing instanceType in ${path}")
+                    }
+
+                    if (!config.nodeName?.toString()?.trim()) {
+                        error("Missing nodeName in ${path}")
+                    }
+                }
+
+                echo "Configuration validation passed: ${path}"
+            }
+        }
+    }
+}
+
        
 stage('Review Changes') {
     steps {
