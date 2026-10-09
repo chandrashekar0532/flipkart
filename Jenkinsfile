@@ -334,7 +334,8 @@ stage('Validate Parameters') {
                             script: "git diff --quiet -- '${path}'",
                             returnStatus: true
                         )
-
+                        echo "Checking file: ${path}"
+                         echo "Git diff exit code: ${status}"
                         if (status == 1) {
                             env.HAS_CHANGES = 'true'
                         } else if (status != 0) {
