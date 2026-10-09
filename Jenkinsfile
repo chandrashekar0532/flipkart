@@ -263,13 +263,14 @@ stage('Validate Parameters') {
 
                             echo "Instance Type: ${config.instanceType}"
                         }
-
-                        if (config != original) {
-                            writeJSON(
+                          echo "Original JSON: ${original}"
+                          echo "Modified JSON: ${config}"
+                        if (config.toString() != original.toString()) {
+                            writeJSON
                                 file: path,
                                 json: config,
                                 pretty: 4
-                            )
+                            
                             echo "Updated JSON: ${path}"
                         } else {
                             echo "No value changes: ${path}"
