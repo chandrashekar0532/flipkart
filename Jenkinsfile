@@ -353,6 +353,24 @@ stage('Validate Updated Configuration') {
     }
 }
 
+stage('SonarQube Analysis') {
+    steps {
+        script {
+            def scannerHome = tool 'SonarScanner'
+
+            withSonarQubeEnv('SonarQube-Server') {
+                sh """
+                    "\${scannerHome}/bin/sonar-scanner" \
+                      -Dsonar.projectKey=Flipkart-CI-123 \
+                      -Dsonar.projectName=Flipkart-CI \
+                      -Dsonar.sources=environment,node \
+                      -Dsonar.sourceEncoding=UTF-8
+                """
+            }
+        }
+    }
+}
+
        
 stage('Review Changes') {
     steps {
