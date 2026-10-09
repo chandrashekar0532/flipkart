@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -97,67 +96,68 @@ pipeline {
             }
         }
 
-        stage('Validate Parameters') {
-            steps {
-                script {
-                    if (!(params.ENVIRONMENT in
-                        ['dev', 'stage', 'uat', 'prod'])) {
-                        error('Invalid ENVIRONMENT')
+        
+stage('Validate Parameters') {
+    steps {
+        script {
+            if (!(params.ENVIRONMENT in
+                ['dev', 'stage', 'uat', 'prod'])) {
+                error('Invalid ENVIRONMENT')
+            }
+
+            if (!(params.CONFIG_TYPE in
+                ['both', 'environment', 'node'])) {
+                error('Invalid CONFIG_TYPE')
+            }
+
+            if (params.CONFIG_TYPE in ['node', 'both']) {
+
+                if (!params.INSTANCE_TYPE?.trim()) {
+                    error('INSTANCE_TYPE is mandatory')
+                }
+
+                if (params.CPU?.trim()) {
+                    if (!params.CPU.trim().matches('[1-9][0-9]*')) {
+                        error('CPU must be a positive integer')
                     }
+                }
 
-                    if (!(params.CONFIG_TYPE in
-                        ['both', 'environment', 'node'])) {
-                        error('Invalid CONFIG_TYPE')
+                if (params.MEMORY?.trim()) {
+                    if (!params.MEMORY.trim().matches('[1-9][0-9]*(Mi|Gi)')) {
+                        error('Invalid MEMORY format')
                     }
-
-                    if (params.CONFIG_TYPE in ['node', 'both']) {
-
-                        if (!params.INSTANCE_TYPE?.trim()) {
-                            error('INSTANCE_TYPE is mandatory')
-                        }
-
-                        if (params.CPU?.trim() &&
-                            !(params.CPU.trim() ==~ /[1-9][0-9]*/)) {
-                            error('CPU must be a positive integer')
-                        }
-
-                        if (params.MEMORY?.trim() &&
-                            !(params.MEMORY.trim() ==~
-                              /[1-9][0-9]*(Mi|Gi)/)) {
-                            error('Invalid MEMORY format')
-                        }
-                    }
-
-                    if (params.CONFIG_TYPE in
-                        ['environment', 'both']) {
-
-                        if (!params.ENV_APPNAME?.trim()) {
-                            error('ENV_APPNAME is mandatory')
-                        }
-
-                        if (!params.ENV_VERSION?.trim()) {
-                            error('ENV_VERSION is mandatory')
-                        }
-
-                        if (!(params.ENV_VERSION.trim() ==~
-                            /[0-9]+\.[0-9]+\.[0-9]+/)) {
-                            error('ENV_VERSION must be like 2.0.0')
-                        }
-
-                        if (!params.ENV_REPLICAS?.trim()) {
-                            error('ENV_REPLICAS is mandatory')
-                        }
-
-                        if (!(params.ENV_REPLICAS.trim() ==~
-                            /[1-9][0-9]*/)) {
-                            error('Replicas must be positive')
-                        }
-                    }
-
-                    echo 'All mandatory parameters validated'
                 }
             }
+
+            if (params.CONFIG_TYPE in ['environment', 'both']) {
+
+                if (!params.ENV_APPNAME?.trim()) {
+                    error('ENV_APPNAME is mandatory')
+                }
+
+                if (!params.ENV_VERSION?.trim()) {
+                    error('ENV_VERSION is mandatory')
+                }
+
+                if (!params.ENV_VERSION.trim().matches(
+                    '[0-9]+[.][0-9]+[.][0-9]+')) {
+                    error('ENV_VERSION must be like 2.0.0')
+                }
+
+                if (!params.ENV_REPLICAS?.trim()) {
+                    error('ENV_REPLICAS is mandatory')
+                }
+
+                if (!params.ENV_REPLICAS.trim().matches('[1-9][0-9]*')) {
+                    error('Replicas must be a positive integer')
+                }
+            }
+
+            echo 'All mandatory parameters validated successfully'
         }
+    }
+}
+
 
         stage('Read Configuration Files') {
             steps {
