@@ -191,6 +191,56 @@ pipeline {
         }
     }
 }
+    
+stage('Create GitHub Pull Request') {
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'github-private-creds',
+                usernameVariable: 'GITHUB_USER',
+                passwordVariable: 'GITHUB_TOKEN'
+            )
+        ]) {
+            sh '''
+                set +x
+
+                python3 - <<'PY'
+import json
+import os
+import urllib.request
+
+repo = "chandrashekar0532/flipkart"
+branch = os.environ["FEATURE_BRANCH"]
+token = os.environ["GITHUB_TOKEN"]
+
+payload = {
+    "title": f"Update configuration: {branch}",
+    "head": branch,
+    "base": "main",
+    "body": "Automated configuration update by Jenkins."
+}
+
+request = urllib.request.Request(
+    f"https://api.github.com/repos/{repo}/pulls",
+    data=json.dumps(payload).encode(),
+    headers={
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Content-Type": "application/json"
+    },
+    method="POST"
+)
+
+with urllib.request.urlopen(request, timeout=30) as response:
+    result = json.load(response)
+    print("Pull Request created:", result["html_url"])
+PY
+            '''
+        }
+    }
+}
+    
     }
     
 }
