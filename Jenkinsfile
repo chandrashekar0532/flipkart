@@ -265,7 +265,7 @@ stage('Validate Parameters') {
                         }
                           echo "Original JSON: ${original}"
                           echo "Modified JSON: ${config}"
-                        if (config.toString() != original.toString()) {
+                        if (config != original) {
                             writeJSON
                                 file: path,
                                 json: config,
