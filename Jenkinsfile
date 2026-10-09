@@ -116,11 +116,6 @@ pipeline {
                             error('INSTANCE_TYPE is mandatory')
                         }
 
-                        if (!params.INSTANCE_TYPE?.trim()) {
-                           error('INSTANCE_TYPE is mandatory')
-                                  }
-                        }
-
                         if (params.CPU?.trim() &&
                             !(params.CPU.trim() ==~ /[1-9][0-9]*/)) {
                             error('CPU must be a positive integer')
