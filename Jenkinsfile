@@ -70,8 +70,6 @@ pipeline {
     }
 
     environment {
-        HAS_CHANGES = 'false'
-        FEATURE_BRANCH = ''
         GITHUB_REPO = 'chandrashekar0532/flipkart'
     }
 
@@ -346,7 +344,8 @@ stage('Review Changes') {
             }
 
             env.HAS_CHANGES = changesFound ? 'true' : 'false'
-
+           env.FEATURE_BRANCH =
+          "feature/update-${params.ENVIRONMENT}-${env.BUILD_NUMBER}"
             echo "Final HAS_CHANGES: ${env.HAS_CHANGES}"
 
             if (changesFound) {
