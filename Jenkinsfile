@@ -353,19 +353,30 @@ stage('Validate Updated Configuration') {
     }
 }
 
+
 stage('SonarQube Analysis') {
     steps {
         script {
-            def scannerHome = tool 'SonarScanner'
+            def scannerHome = tool name: 'SonarScanner',
+                                   type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+
+            echo "Scanner location: ${scannerHome}"
 
             withSonarQubeEnv('SonarQube-Server') {
-                sh """
-                    "\${scannerHome}/bin/sonar-scanner" \
-                      -Dsonar.projectKey=Flipkart-CI\
-                      -Dsonar.projectName=Flipkart-CI \
-                      -Dsonar.sources=environment,node \
-                      -Dsonar.sourceEncoding=UTF-8
-                """
+                withEnv(["SCANNER_HOME=${scannerHome}"]) {
+                    sh '''
+                        set -e
+
+                        echo "Checking scanner installation..."
+                        ls -l "$SCANNER_HOME/bin/sonar-scanner"
+
+                        "$SCANNER_HOME/bin/sonar-scanner" \
+                          -Dsonar.projectKey=Flipkart-CI \
+                          -Dsonar.projectName=Flipkart-CI \
+                          -Dsonar.sources=environment,node \
+                          -Dsonar.sourceEncoding=UTF-8
+                    '''
+                }
             }
         }
     }
