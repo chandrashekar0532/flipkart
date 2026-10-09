@@ -361,7 +361,7 @@ stage('SonarQube Analysis') {
             withSonarQubeEnv('SonarQube-Server') {
                 sh """
                     "\${scannerHome}/bin/sonar-scanner" \
-                      -Dsonar.projectKey=Flipkart-CI-123 \
+                      -Dsonar.projectKey=Flipkart-CI\
                       -Dsonar.projectName=Flipkart-CI \
                       -Dsonar.sources=environment,node \
                       -Dsonar.sourceEncoding=UTF-8
