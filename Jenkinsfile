@@ -116,9 +116,9 @@ pipeline {
                             error('INSTANCE_TYPE is mandatory')
                         }
 
-                        if (!(params.INSTANCE_TYPE.trim() ==~
-                            /[a-z][a-z0-9]*[0-9][a-z0-9-]*\.[a-z0-9]+/)) {
-                            error('Invalid INSTANCE_TYPE format')
+                        if (!params.INSTANCE_TYPE?.trim()) {
+                           error('INSTANCE_TYPE is mandatory')
+                                  }
                         }
 
                         if (params.CPU?.trim() &&
