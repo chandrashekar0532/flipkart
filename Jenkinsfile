@@ -266,12 +266,8 @@ stage('Validate Parameters') {
                           echo "Original JSON: ${original}"
                           echo "Modified JSON: ${config}"
                         if (config != original) {
-                            writeJSON
-                                file: path,
-                                json: config,
-                                pretty: 4 
-                            
-                            echo "Updated JSON: ${path}"
+                             writeJSON(file: path, json: config, pretty: 4)
+                              echo "Updated JSON: ${path}"
                         } else {
                             echo "No value changes: ${path}"
                         }
