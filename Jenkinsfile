@@ -179,6 +179,18 @@ pipeline {
         }
     }
 }
+        stage('Push Feature Branch') {
+    steps {
+        withCredentials([
+            gitUsernamePassword(
+                credentialsId: 'github-private-creds',
+                gitToolName: 'Default'
+            )
+        ]) {
+            sh 'git push -u origin "$FEATURE_BRANCH"'
+        }
+    }
+}
     }
     
 }
