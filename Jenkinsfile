@@ -90,6 +90,30 @@ choice(
                         if (!params.INSTANCE_TYPE?.trim()) {
                             error('INSTANCE_TYPE is mandatory for node updates')
                         }
+                        
+if (params.CONFIG_TYPE in ['environment', 'both']) {
+
+    if (!params.ENV_APPNAME?.trim()) {
+        error('ENV_APPNAME is mandatory for environment updates')
+    }
+
+    if (!params.ENV_VERSION?.trim()) {
+        error('ENV_VERSION is mandatory for environment updates')
+    }
+
+    if (!(params.ENV_VERSION.trim() ==~ /\d+\.\d+\.\d+/)) {
+        error('ENV_VERSION must follow format 1.0.0')
+    }
+
+    if (!params.ENV_REPLICAS?.trim()) {
+        error('ENV_REPLICAS is mandatory for environment updates')
+    }
+
+    if (!(params.ENV_REPLICAS.trim() ==~ /[1-9][0-9]*/)) {
+        error('ENV_REPLICAS must be a positive integer')
+    }
+}
+
                     }
 
                     echo 'All mandatory parameters validated successfully'
