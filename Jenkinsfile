@@ -402,6 +402,122 @@ stage('Review Changes') {
         }
     }
 }
+       
+stage('Package ZIP Artifact') {
+    when {
+        expression {
+            env.HAS_CHANGES == 'true'
+        }
+    }
+
+    steps {
+        script {
+            env.ARTIFACT_NAME =
+                "flipkart-config-${params.ENVIRONMENT}-${env.BUILD_NUMBER}.zip"
+
+            withEnv([
+                "SELECTED_ENV=${params.ENVIRONMENT}",
+                "SELECTED_TYPE=${params.CONFIG_TYPE}"
+            ]) {
+                sh '''
+                    python3 - <<'PY'
+import os
+import zipfile
+
+environment = os.environ["SELECTED_ENV"]
+config_type = os.environ["SELECTED_TYPE"]
+artifact = os.environ["ARTIFACT_NAME"]
+
+types = (
+    ["environment", "node"]
+    if config_type == "both"
+    else [config_type]
+)
+
+with zipfile.ZipFile(
+    artifact, "w", zipfile.ZIP_DEFLATED
+) as archive:
+    for config in types:
+        path = f"{config}/{environment}.json"
+        if not os.path.isfile(path):
+            raise FileNotFoundError(path)
+        archive.write(path)
+
+print(f"ZIP artifact created: {artifact}")
+PY
+                '''
+            }
+
+            archiveArtifacts(
+                artifacts: env.ARTIFACT_NAME,
+                fingerprint: true
+            )
+        }
+    }
+}
+
+stage('Upload Artifact to Nexus') {
+    when {
+        expression {
+            env.HAS_CHANGES == 'true'
+        }
+    }
+
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'nexus-credentials',
+                usernameVariable: 'NEXUS_USER',
+                passwordVariable: 'NEXUS_PASS'
+            )
+        ]) {
+            sh '''
+                set +x
+                set -e
+
+                curl --fail --silent --show-error \
+                    --connect-timeout 10 \
+                    --user "$NEXUS_USER:$NEXUS_PASS" \
+                    --upload-file "$ARTIFACT_NAME" \
+                    "http://172.31.14.68:8081/repository/flipkart-artifacts/$ARTIFACT_NAME"
+
+                echo "Artifact uploaded to Nexus successfully"
+            '''
+        }
+    }
+}
+
+stage('Verify Nexus Artifact') {
+    when {
+        expression {
+            env.HAS_CHANGES == 'true'
+        }
+    }
+
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'nexus-credentials',
+                usernameVariable: 'NEXUS_USER',
+                passwordVariable: 'NEXUS_PASS'
+            )
+        ]) {
+            sh '''
+                set +x
+                set -e
+
+                curl --fail --silent --show-error \
+                    --head \
+                    --user "$NEXUS_USER:$NEXUS_PASS" \
+                    "http://172.31.14.68:8081/repository/flipkart-artifacts/$ARTIFACT_NAME" \
+                    > /dev/null
+
+                echo "Nexus artifact verified successfully"
+            '''
+        }
+    }
+}
+ 
 
 
         stage('Create Git Feature Branch') {
