@@ -1,9 +1,9 @@
 {
     "environment": "dev",
-    "appName": "abctest",
-    "version": "6.0.0",
+    "appName": "flipkart-dev",
+    "version": "7.0.0",
     "replicas": 2,
-    "logLevel": "WARN",
+    "logLevel": "INFO",
     "database":     {
         "host": "dev-db.example.com",
         "port": 5432,
