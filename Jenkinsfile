@@ -38,7 +38,34 @@ pipeline {
             defaultValue: '',
             description: 'Optional: Memory value'
         )
+
+string(
+    name: 'ENV_APPNAME',
+    defaultValue: '',
+    description: 'Application name (mandatory for environment updates)'
+)
+
+string(
+    name: 'ENV_VERSION',
+    defaultValue: '',
+    description: 'Application version, e.g. 2.0.0 (mandatory)'
+)
+
+string(
+    name: 'ENV_REPLICAS',
+    defaultValue: '',
+    description: 'Number of replicas, e.g. 2 (mandatory)'
+)
+
+choice(
+    name: 'ENV_LOGLEVEL',
+    choices: ['KEEP', 'DEBUG', 'INFO', 'WARN', 'ERROR'],
+    description: 'Optional: Select log level or KEEP existing value'
+)
+
+        
     }
+    
 
     stages {
         stage('Display Parameters') {
